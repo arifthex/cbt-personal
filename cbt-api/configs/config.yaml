@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+database:
+  host: postgres
+  port: 5432
+  user: cbtuser
+  password: cbtpwd
+  dbname: cbtdb
+
+redis:
+  host: redis
+  port: 6379
