@@ -1,18 +1,26 @@
-FROM golang:1.21-alpine
-
-# Install dependencies untuk go mod
-RUN apk add --no-cache git bash ca-certificates
+# Stage 1: build
+FROM golang:1.23 AS builder
 
 WORKDIR /app
 
+# copy go.mod dan go.sum dulu
 COPY go.mod go.sum ./
+RUN go mod download
 
-RUN go mod tidy    # <-- ganti go mod download dengan tidy lebih aman
-
+# copy source code
 COPY . .
 
-RUN go build -o cbt-api ./cmd/server
+# pastikan go.sum up-to-date di container
+RUN go mod tidy
+
+# build binary
+RUN go build -o /cbt-api ./cmd/main.go
+
+# Stage 2: runtime
+FROM alpine:latest
+
+WORKDIR /app
+COPY --from=builder /cbt-api .
 
 EXPOSE 8080
-
 CMD ["./cbt-api"]

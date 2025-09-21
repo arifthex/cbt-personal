@@ -27,3 +27,38 @@ cbt-api/
 ├── docker-compose.yml
 ├── go.mod
 └── go.sum
+
+
+3 Layer API
+
+cbt-api/
+├── cmd/
+│   └── main.go              # entrypoint server
+│
+├── config/
+│   └── config.go            # load ENV, db config, redis config
+│
+├── handlers/                # HTTP layer (gin/echo handler)
+│   └── exam_handler.go
+│
+├── services/                # business logic
+│   └── exam_service.go
+│
+├── repositories/            # db access
+│   └── exam_repository.go
+│
+├── models/                  # entity / struct
+│   └── exam.go
+│
+├── migrations/              # migration files
+│   ├── 20250921_create_users_table.up.sql
+│   └── 20250921_create_users_table.down.sql
+│
+├── utils/                   # helper (logger, response, middleware)
+│   └── response.go
+│
+├── Dockerfile
+├── docker-compose.yml
+├── go.mod
+└── go.sum
+
