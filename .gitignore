@@ -18,7 +18,8 @@ coverage.*
 profile.cov
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+cbt-api/vendor/*
+vendor/
 
 # Go workspace file
 go.work
