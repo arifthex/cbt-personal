@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin CBT - Penilaian & Riwayat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Menambahkan beberapa style dasar untuk body */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style untuk scrollbar yang lebih modern (opsional) */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+
+        <section id="daftar-ujian">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">Penilaian & Riwayat Ujian</h1>
+
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-600">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Nama Ujian</th>
+                                <th scope="col" class="px-6 py-3">Mapel</th>
+                                <th scope="col" class="px-6 py-3">Tanggal Ujian</th>
+                                <th scope="col" class="px-6 py-3">Jumlah Peserta</th>
+                                <th scope="col" class="px-6 py-3">Status Penilaian</th>
+                                <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                    Ujian Akhir Semester Genap
+                                </td>
+                                <td class="px-6 py-4">Bahasa Inggris</td>
+                                <td class="px-6 py-4">10 Juli 2025</td>
+                                <td class="px-6 py-4">35 Siswa</td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        🔄 Sedang Dinilai (23/35)
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <a href="#detail-penilaian" class="font-medium text-blue-600 hover:text-blue-800 inline-flex items-center">
+                                        🔍 Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                    Ujian Tengah Semester
+                                </td>
+                                <td class="px-6 py-4">Matematika</td>
+                                <td class="px-6 py-4">28 Juni 2025</td>
+                                <td class="px-6 py-4">41 Siswa</td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        ✅ Selesai Dinilai
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                     <a href="#detail-penilaian" class="font-medium text-blue-600 hover:text-blue-800 inline-flex items-center">
+                                        🔍 Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="detail-penilaian" class="mt-12 pt-8 border-t border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Penilaian – Ujian Akhir Semester Genap</h2>
+            <p class="text-sm text-gray-500 mb-6">Berikut adalah daftar peserta dan status penilaian.</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-sm text-gray-500">Soal PG</p>
+                    <p class="text-xl font-bold">25</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-sm text-gray-500">Soal Essay</p>
+                    <p class="text-xl font-bold">5</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-sm text-gray-500">Total Peserta</p>
+                    <p class="text-xl font-bold">35</p>
+                </div>
+                 <div class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-sm text-gray-500">Waktu Ujian</p>
+                    <p class="text-xl font-bold">60 Menit</p>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                 <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-600">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">No</th>
+                                <th scope="col" class="px-6 py-3">Nama Siswa</th>
+                                <th scope="col" class="px-6 py-3">Skor PG</th>
+                                <th scope="col" class="px-6 py-3">Essay Dinilai?</th>
+                                <th scope="col" class="px-6 py-3">Nilai Akhir</th>
+                                <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4 font-medium text-gray-900">Rahmanda Safitri</td>
+                                <td class="px-6 py-4">68</td>
+                                <td class="px-6 py-4"><span class="font-mono text-red-500">❌ Belum</span></td>
+                                <td class="px-6 py-4 text-gray-500">-</td>
+                                <td class="px-6 py-4 text-center">
+                                    <a href="#penilaian-manual" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 text-center">
+                                        ✏️ Nilai
+                                    </a>
+                                </td>
+                            </tr>
+                             <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4 font-medium text-gray-900">Budi Santoso</td>
+                                <td class="px-6 py-4">72</td>
+                                <td class="px-6 py-4"><span class="font-mono text-green-600">✅ Ya</span></td>
+                                <td class="px-6 py-4 font-bold text-gray-800">85</td>
+                                <td class="px-6 py-4 text-center">
+                                    <a href="#penilaian-manual" class="text-gray-800 bg-gray-200 hover:bg-gray-300 font-medium rounded-lg text-sm px-4 py-2 text-center">
+                                        👁️ Lihat
+                                    </a>
+                                </td>
+                            </tr>
+                             <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4 font-medium text-gray-900">Citra Lestari</td>
+                                <td class="px-6 py-4">80</td>
+                                <td class="px-6 py-4"><span class="font-mono text-green-600">✅ Ya</span></td>
+                                <td class="px-6 py-4 font-bold text-gray-800">92</td>
+                                <td class="px-6 py-4 text-center">
+                                    <a href="#penilaian-manual" class="text-gray-800 bg-gray-200 hover:bg-gray-300 font-medium rounded-lg text-sm px-4 py-2 text-center">
+                                        👁️ Lihat
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="penilaian-manual" class="mt-12 pt-8 border-t border-gray-200">
+             <h2 class="text-2xl font-bold text-gray-900 mb-1">Penilaian Essay – Rahmanda Safitri</h2>
+             <p class="text-sm text-gray-500 mb-8">Berikan skor pada setiap jawaban essay siswa. Skor per soal adalah 0-20.</p>
+
+            <div class="space-y-6">
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center border-b pb-4 mb-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2 sm:mb-0">📘 Soal Essay #1</h3>
+                        <div class="flex items-center space-x-2">
+                            <label for="skor1" class="text-sm font-medium">Nilai (0-20):</label>
+                            <input type="number" id="skor1" name="skor1" min="0" max="20" class="w-20 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700">Pertanyaan:</p>
+                        <div class="mt-2 p-4 bg-gray-50 rounded-md text-gray-800">
+                            What is the main difference between "present perfect" and "past simple" tense? Provide one example for each.
+                        </div>
+                        <p class="mt-4 font-semibold text-gray-700">Jawaban Siswa:</p>
+                        <div class="mt-2 p-4 border rounded-md text-gray-600 italic">
+                            Past simple is for action finished in the past. Present perfect is for action in the past but has connection to the present. Example past simple: I went to Bali last year. Example present perfect: I have visited Bali.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center border-b pb-4 mb-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2 sm:mb-0">📘 Soal Essay #2</h3>
+                         <div class="flex items-center space-x-2">
+                            <label for="skor2" class="text-sm font-medium">Nilai (0-20):</label>
+                            <input type="number" id="skor2" name="skor2" min="0" max="20" class="w-20 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700">Pertanyaan:</p>
+                        <div class="mt-2 p-4 bg-gray-50 rounded-md text-gray-800">
+                            Describe your favorite holiday in at least 50 words.
+                        </div>
+                        <p class="mt-4 font-semibold text-gray-700">Jawaban Siswa:</p>
+                        <div class="mt-2 p-4 border rounded-md text-gray-600 italic">
+                            My favorite holiday is Eid al-Fitr. I can meet my big family from my father and mother side. We go to grandfather house together. My mother cooks very delicious food like opor ayam and ketupat. We eat together and talk a lot. I get 'angpao' from my uncle and aunt. I am very happy.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-4">
+                <button type="button" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium">
+                    Kembali
+                </button>
+                <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                    Simpan & Lanjutkan
+                </button>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

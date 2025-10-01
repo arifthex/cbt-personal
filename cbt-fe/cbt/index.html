@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - Ujian CBT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white p-8 sm:p-10 rounded-2xl shadow-lg w-full max-w-md">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Selamat Datang di Ujian CBT</h1>
+            <p class="text-gray-500 mt-2">Silakan masukkan data diri dan token ujian Anda.</p>
+        </div>
+
+        <form id="login-form" class="space-y-6">
+            <div>
+                <label for="nama_lengkap" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                <input type="text" id="nama_lengkap" name="nama_lengkap" placeholder="Masukkan nama lengkap Anda"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition">
+            </div>
+            <div>
+                <label for="nomor_peserta" class="block text-sm font-medium text-gray-700 mb-1">Nomor Peserta / NIS</label>
+                <input type="text" id="nomor_peserta" name="nomor_peserta" placeholder="Contoh: 2025001"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition">
+            </div>
+            <div>
+                <label for="token_ujian" class="block text-sm font-medium text-gray-700 mb-1">Token Ujian</label>
+                <input type="text" id="token_ujian" name="token_ujian" placeholder="Masukkan token"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition">
+            </div>
+
+            <div id="error-message" class="hidden text-red-600 bg-red-100 p-3 rounded-lg text-sm font-medium"></div>
+
+            <div>
+                <button type="submit" id="submit-btn" class="w-full flex justify-center items-center bg-blue-800 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-900 transition-colors disabled:bg-blue-400">
+                    <span id="button-text">Verifikasi Token</span>
+                    <svg id="spinner" class="hidden animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+    const errorMessageDiv = document.getElementById('error-message');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Ambil nilai dari input
+        const namaLengkap = document.getElementById('nama_lengkap').value.trim();
+        const nomorPeserta = document.getElementById('nomor_peserta').value.trim();
+        const tokenUjian = document.getElementById('token_ujian').value.trim();
+
+        // Sembunyikan pesan error sebelumnya
+        errorMessageDiv.classList.add('hidden');
+        errorMessageDiv.textContent = '';
+
+        // Validasi input kosong
+        if (!namaLengkap || !nomorPeserta || !tokenUjian) {
+            showError('Semua field wajib diisi.');
+            return;
+        }
+
+        // Tampilkan loading spinner
+        setLoading(true);
+
+        // Simulasi proses verifikasi token (delay 1.5 detik)
+        setTimeout(() => {
+            const TOKEN_VALID = "CBT2025";
+            if (tokenUjian === TOKEN_VALID) {
+                // Simpan data siswa ke localStorage
+                localStorage.setItem('siswa_nama', namaLengkap);
+                localStorage.setItem('siswa_nomor', nomorPeserta);
+                // Arahkan ke halaman verifikasi
+                window.location.href = 'verifikasi.html';
+            } else {
+                showError('Token ujian yang Anda masukkan salah.');
+                setLoading(false);
+            }
+        }, 1500);
+    });
+
+    function showError(message) {
+        errorMessageDiv.textContent = message;
+        errorMessageDiv.classList.remove('hidden');
+    }
+
+    function setLoading(isLoading) {
+        if (isLoading) {
+            submitBtn.disabled = true;
+            buttonText.classList.add('hidden');
+            spinner.classList.remove('hidden');
+        } else {
+            submitBtn.disabled = false;
+            buttonText.classList.remove('hidden');
+            spinner.classList.add('hidden');
+        }
+    }
+});
+</script>
+
+</body>
+</html>

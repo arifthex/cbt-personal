@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi Ujian - CBT</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <main class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 md:p-10 w-full max-w-3xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Verifikasi Peserta & Tata Cara Ujian</h1>
+            <p class="text-gray-500 mt-2">Silakan periksa kembali data Anda sebelum memulai ujian.</p>
+        </header>
+
+        <section class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8">
+            <div class="grid md:grid-cols-2 gap-x-8 gap-y-5">
+                <div>
+                    <label class="text-sm text-gray-500">Nama Peserta</label>
+                    <p id="display_nama" class="text-lg font-semibold text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Nomor Peserta / NIS</label>
+                    <p id="display_nomor" class="text-lg font-semibold text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Token Ujian</label>
+                    <p id="display_token" class="text-lg font-semibold text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Status Token</label>
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <p id="display_status" class="text-lg font-semibold text-emerald-500"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Tata Cara Ujian</h2>
+            <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-800 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Bacalah setiap soal dengan seksama sebelum memilih jawaban.</span>
+                </li>
+                 <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-800 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6.364-3.636L5 12m0 0l-1.636-1.636M12 5v2m6.364 3.636L19 12m0 0l1.636 1.636M12 19v2m-6.364-3.636L5 12m6.364 6.364L13 18m-1-1-6-6" />
+                    </svg>
+                    <span>Waktu ujian akan berjalan otomatis setelah tombol "Mulai Ujian" ditekan.</span>
+                </li>
+                <li class="flex items-start">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-800 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Klik tombol "Ragu-ragu" jika Anda belum yakin pada jawaban yang dipilih.</span>
+                </li>
+                <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-800 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Jawaban akan tersimpan secara otomatis saat Anda berpindah ke soal lain.</span>
+                </li>
+                <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span><strong>PENTING:</strong> Jangan keluar atau me-refresh halaman selama ujian berlangsung.</span>
+                </li>
+            </ul>
+        </section>
+
+        <footer class="text-center mt-10">
+            <button id="startButton" class="bg-blue-800 text-white font-bold text-xl px-12 py-4 rounded-lg hover:bg-blue-900 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-400">
+                Mulai Ujian
+            </button>
+        </footer>
+
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Simulasi data peserta yang didapat setelah login token
+    const pesertaData = {
+        nama: "Rahmanda Safitri",
+        nomor: "20250101",
+        token: "CBT2025",
+        status: "Valid"
+    };
+
+    // Referensi ke elemen HTML
+    const displayName = document.getElementById('display_nama');
+    const displayNomor = document.getElementById('display_nomor');
+    const displayToken = document.getElementById('display_token');
+    const displayStatus = document.getElementById('display_status');
+    const startButton = document.getElementById("startButton");
+
+    // Cek jika data ada dan lengkap
+    if (pesertaData && pesertaData.nama && pesertaData.nomor && pesertaData.token) {
+        // Tampilkan data ke elemen HTML
+        displayName.textContent = pesertaData.nama;
+        displayNomor.textContent = pesertaData.nomor;
+        displayToken.textContent = pesertaData.token;
+        displayStatus.textContent = pesertaData.status;
+    } else {
+        // Jika data tidak ada/lengkap, beri peringatan dan nonaktifkan tombol
+        alert("Data peserta tidak lengkap! Silakan kembali ke halaman login.");
+        displayName.textContent = "Data tidak ditemukan";
+        displayNomor.textContent = "Data tidak ditemukan";
+        startButton.disabled = true;
+        startButton.textContent = "Gagal Memuat Data";
+    }
+
+    // Event listener untuk tombol "Mulai Ujian"
+    startButton.addEventListener('click', () => {
+        // Konfirmasi popup sebelum redirect
+        const konfirmasi = confirm("Anda yakin ingin memulai ujian?\nWaktu akan berjalan setelah Anda melanjutkan.");
+
+        if (startButton) {
+            startButton.addEventListener("click", () => {
+            const konfirmasi = confirm(
+                "Anda yakin ingin memulai ujian?\nWaktu akan berjalan setelah Anda melanjutkan."
+            );
+
+            if (konfirmasi) {
+                alert("Memulai ujian... Semoga berhasil!");
+                window.location.href = "ujian.html"; // Ganti dengan halaman ujian Anda
+            }
+            });
+        } else {
+            console.error("Tombol #startButton tidak ditemukan di DOM!");
+        }
+        // Jika pengguna menekan "Cancel", tidak terjadi apa-apa
+    });
+});
+</script>
+
+</body>
+</html>
