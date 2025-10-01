@@ -10,3 +10,9 @@ npm create solid@latest
 
 3. Install Library 
 npm install @tailwindcss/forms
+
+4. Flow Navigasi
+a. Import Library
+b. Definisikan Constanta fungsi
+c. Daftarkan di App.jsx
+

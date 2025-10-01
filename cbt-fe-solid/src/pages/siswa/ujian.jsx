@@ -1,4 +1,6 @@
 import { createSignal, onMount, For, Show } from "solid-js";
+import ConfirmModal from "../../components/ConfirmModal";
+import { useNavigate } from "@solidjs/router";
 
 export default function Ujian() {
   // --- DATA SOAL (SAMPLE) ---
@@ -77,6 +79,18 @@ export default function Ujian() {
   const [timeLeft, setTimeLeft] = createSignal(3600); // 1 jam
   const [nama, setNama] = createSignal(""); //Local storage
   const [nomor, setNomor] = createSignal("");
+  const [modalOpen, setModalOpen] = createSignal(false);
+  const navigate = useNavigate();
+
+  // Modal handlers
+  const handleSelesai = () => {
+    setModalOpen(true);
+  };
+
+  const handleConfirm = () => {
+    setModalOpen(false);
+    navigate("/selesai");
+  };
 
 //   Get Name local
   onMount(() => {
@@ -242,9 +256,20 @@ export default function Ujian() {
             >
               Soal Selanjutnya &rarr;
             </button>
-            <button class="w-full bg-green-600 text-white hover:bg-cyan-600 font-bold px-6 py-3 rounded-lg transition-colors">
+            <button 
+            onClick={handleSelesai}
+            class="w-full bg-green-600 text-white hover:bg-cyan-600 font-bold px-6 py-3 rounded-lg transition-colors">
               Selesaikan Ujian
             </button>
+            <ConfirmModal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={handleConfirm}
+                title="Konfirmasi Selesai Ujian"
+                message="Apakah kamu yakin ingn menyelesaikan ujian sekarang?"
+                cancelText="Batal"
+                confirmText="Ya"
+            />
           </div>
         </div>
 
