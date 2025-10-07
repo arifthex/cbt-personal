@@ -1,0 +1,503 @@
+openapi: 3.0.3
+info:
+  title: CBT System API
+  description: REST API for Computer-Based Test System (CBT)
+  version: "1.0.0"
+  contact:
+    name: Bro Cak
+    email: dev@cbt.local
+servers:
+  - url: https://api.cbt.local/api/v1
+    description: Production Server
+  - url: http://localhost:8080/api/v1
+    description: Local Development
+
+tags:
+  - name: Auth
+    description: Authentication & Token Management
+  - name: Users
+    description: User Management
+  - name: Questions
+    description: Question Bank
+  - name: Exams
+    description: Exam Management
+  - name: Attempts
+    description: Student Exam Attempt & Answers
+  - name: Grading
+    description: Exam Grading
+  - name: Reports
+    description: Reporting & Results
+  - name: Cache
+    description: Admin Cache Control
+  - name: Audit
+    description: Audit Logs
+  - name: System
+    description: Healthcheck & Metrics
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer, example: 5 }
+        full_name: { type: string, example: "Budi Santoso" }
+        email: { type: string, example: "budi@cbt.local" }
+        role: { type: string, enum: [admin, teacher, student] }
+        school_id: { type: integer }
+    Question:
+      type: object
+      properties:
+        id: { type: integer }
+        module_id: { type: integer }
+        question_type: { type: string, enum: [mcq, essay, short] }
+        body:
+          type: object
+          example:
+            question: "Apa ibu kota Indonesia?"
+            choices: ["Bandung", "Jakarta", "Surabaya"]
+            answer_key: 1
+    Exam:
+      type: object
+      properties:
+        id: { type: integer }
+        module_id: { type: integer }
+        title: { type: string }
+        status: { type: string, enum: [draft, published, closed] }
+        start_time: { type: string, format: date-time }
+        duration_minutes: { type: integer }
+        cache_expire_at: { type: string, format: date-time }
+    ExamAttempt:
+      type: object
+      properties:
+        id: { type: integer }
+        exam_id: { type: integer }
+        student_id: { type: integer }
+        status: { type: string, enum: [created, in_progress, submitted, force_submitted, graded] }
+        started_at: { type: string, format: date-time }
+        ended_at: { type: string, format: date-time }
+    Answer:
+      type: object
+      properties:
+        id: { type: integer }
+        question_id: { type: integer }
+        answer: { type: object }
+        score: { type: number }
+        submitted_at: { type: string, format: date-time }
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          description: Login success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token: { type: string }
+                  refresh_token: { type: string }
+                  user: { $ref: "#/components/schemas/User" }
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              example: { error: "invalid_credentials" }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token: { type: string }
+      responses:
+        "200":
+          description: Token refreshed
+          content:
+            application/json:
+              example: { access_token: "new_access_token" }
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List all users
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: role
+          in: query
+          schema: { type: string }
+        - name: school_id
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/User" }
+
+    post:
+      tags: [Users]
+      summary: Create a new user
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: User created
+
+  /questions:
+    get:
+      tags: [Questions]
+      summary: List all questions
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: module_id
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Question" }
+
+    post:
+      tags: [Questions]
+      summary: Create question
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Question"
+      responses:
+        "201":
+          description: Question created
+
+  /exams:
+    get:
+      tags: [Exams]
+      summary: List exams
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Exam" }
+
+    post:
+      tags: [Exams]
+      summary: Create exam
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Exam"
+      responses:
+        "201":
+          description: Exam created
+
+  /exams/{id}/publish:
+    post:
+      tags: [Exams]
+      summary: Publish exam and cache questions
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Exam published
+          content:
+            application/json:
+              example:
+                message: "exam_cached"
+                expire_at: "2025-10-08T09:00:00Z"
+
+  /exams/{id}/cache:
+    delete:
+      tags: [Exams]
+      summary: Remove exam cache manually
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Cache removed
+          content:
+            application/json:
+              example: { message: "cache_removed", exam_id: 101 }
+
+  /exams/active:
+    get:
+      tags: [Attempts]
+      summary: List active exams for student
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: class_id
+          in: query
+          schema: { type: integer }
+        - name: token
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Active exams
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Exam" }
+
+  /exams/{id}/start:
+    post:
+      tags: [Attempts]
+      summary: Start exam (create ExamAttempt)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "201":
+          description: Attempt started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAttempt"
+
+  /attempts/{id}/answer:
+    patch:
+      tags: [Attempts]
+      summary: Autosave answer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question_id: { type: integer }
+                answer: { type: object }
+                client_ts: { type: string, format: date-time }
+      responses:
+        "200":
+          description: Answer saved
+          content:
+            application/json:
+              example: { status: "saved", server_ts: "2025-10-07T09:15:22Z" }
+
+  /attempts/{id}/submit:
+    post:
+      tags: [Attempts]
+      summary: Submit exam manually
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Exam submitted
+          content:
+            application/json:
+              example: { status: "submitted", score_auto: 85 }
+
+  /attempts/{id}/auto-submit:
+    post:
+      tags: [Attempts]
+      summary: Auto submit triggered by anti-cheat
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Force submitted
+          content:
+            application/json:
+              example: { status: "force_submitted", reason: "anti_cheat_trigger" }
+
+  /grading/pending:
+    get:
+      tags: [Grading]
+      summary: List pending grading attempts
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Pending grading list
+
+  /grading/{attempt_id}:
+    post:
+      tags: [Grading]
+      summary: Submit manual grading
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: attempt_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      question_id: { type: integer }
+                      score: { type: number }
+      responses:
+        "200":
+          description: Graded
+          content:
+            application/json:
+              example: { status: "graded", total_score: 90 }
+
+  /reports/exam/{id}/summary:
+    get:
+      tags: [Reports]
+      summary: Exam summary
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              example:
+                exam_id: 201
+                average: 78.3
+                highest: 98
+                lowest: 54
+                participants: 42
+
+  /admin/cache/stats:
+    get:
+      tags: [Cache]
+      summary: View cache statistics
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Cache stats
+          content:
+            application/json:
+              example:
+                total_exams_cached: 5
+                estimated_memory_mb: 35.2
+                caches:
+                  - exam_id: 201
+                    expire_at: "2025-10-08T09:00:00Z"
+
+  /audit:
+    get:
+      tags: [Audit]
+      summary: List audit logs
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: user_id
+          in: query
+          schema: { type: integer }
+        - name: action
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Audit logs
+          content:
+            application/json:
+              example:
+                - id: 88
+                  user_id: 502
+                  action: "anti_cheat_event"
+                  target_resource: "exam_attempt"
+                  target_id: 201
+                  details:
+                    event: "fullscreen_exit"
+                    timestamp: "2025-10-07T09:23:12Z"
+                  created_at: "2025-10-07T09:23:12Z"
+
+  /health:
+    get:
+      tags: [System]
+      summary: API healthcheck
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              example: { status: "ok", uptime: "12h 43m" }
+
+  /metrics:
+    get:
+      tags: [System]
+      summary: Prometheus metrics endpoint
+      responses:
+        "200":
+          description: Prometheus format output

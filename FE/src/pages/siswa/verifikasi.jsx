@@ -30,8 +30,7 @@ export default function Verifikasi() {
       setStatus("Token Tidak Valid");
     }
   });
-
-    
+  
  const handleMulai = () => {
     setModalOpen(true);
   };

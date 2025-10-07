@@ -1,0 +1,289 @@
+# 🧠 CBT SYSTEM PRD v1.0 (Monorepo Deployment Ready)
+
+**Author:** Bro Cak  
+**Stack:** Golang (Backend) · Solid.js + shadcn UI (Frontend) · PostgreSQL (DB)  
+**Release:** v1.0 — Production Ready  
+**Last Updated:** 2025-10-07
+
+---
+
+## 1️⃣ Visi & Tujuan
+
+Sistem CBT (Computer-Based Test) ini dirancang untuk mendukung pelaksanaan ujian digital skala besar dengan:
+- efisiensi tinggi (tanpa dependency berat seperti Redis),
+- pengawasan ketat (anti-cheat system dengan auto-submit),
+- dan performa stabil hingga 5000 peserta serentak.
+
+### 🎯 Target Utama
+- ✅ Dapat berjalan pada server **4 core, 4 GB RAM**
+- ✅ Performa cepat (load soal tanpa query DB)
+- ✅ Caching in-memory soal hingga **H+1**
+- ✅ Pengawasan real-time dan audit log lengkap
+- ✅ Monorepo untuk efisiensi CI/CD & AI Agent Integration
+
+---
+
+## 2️⃣ Struktur Proyek (Monorepo Layout)
+
+```plaintext
+/ (root)
+│
+├── FE/                    # Frontend Solid.js + shadcn UI
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── src/
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── store/
+│   │   └── routes/
+│   └── tailwind.config.js
+│
+├── BE/                    # Backend Golang Service
+│   ├── cmd/api/main.go
+│   ├── internal/
+│   │   ├── auth/
+│   │   ├── exam/
+│   │   ├── cache/
+│   │   ├── question/
+│   │   ├── student/
+│   │   ├── grading/
+│   │   ├── audit/
+│   │   └── admin/
+│   ├── pkg/
+│   │   ├── db/              # sqlc generated queries
+│   │   ├── middleware/
+│   │   ├── utils/
+│   │   └── models/
+│   ├── go.mod
+│   ├── go.sum
+│   └── .env
+│
+├── Docs/                  # Dokumentasi
+│   ├── PRD_CBT_v1.0.md
+│   ├── ERD.md
+│   ├── API_Spec.md
+│   ├── DEPLOY_GUIDE.md
+│   └── CHANGELOG.md
+│
+├── Deploy/                # Docker & Environment
+│   ├── docker-compose.yml
+│   ├── Dockerfile.api
+│   ├── Dockerfile.fe
+│   ├── .env.example
+│   └── Makefile
+│
+└── README.md
+
+3️⃣ Core Entities & Role
+Table: users
+| Field         | Type                              | Description                 |
+| ------------- | --------------------------------- | --------------------------- |
+| id            | BIGSERIAL                         | Primary key                 |
+| full_name     | VARCHAR                           | Nama lengkap                |
+| email         | VARCHAR                           | Unik, digunakan untuk login |
+| password_hash | TEXT                              | Disimpan dengan bcrypt      |
+| role          | ENUM('admin','teacher','student') | Hak akses                   |
+| school_id     | BIGINT                            | FK ke tabel `schools`       |
+| created_at    | TIMESTAMPTZ                       | Default `now()`             |
+
+Semua pengguna berada dalam satu tabel users untuk memudahkan integrasi lintas sistem dan login JWT terpusat.
+
+4️⃣ Role & Fungsionalitas
+Role	Deskripsi	Fungsionalitas Utama
+Admin (Pengawas)	Mengawasi ujian dan monitoring cache	Melihat status ujian, memantau RAM cache, hapus cache manual
+Guru (Teacher)	Membuat & mem-publish ujian	CRUD soal, publish ujian, melihat hasil
+Siswa (Student)	Mengikuti ujian	Login, lihat ujian aktif, kerjakan soal, autosave, anti-cheat
+5️⃣ Login & Autentikasi
+Endpoints
+
+POST /auth/login → menerima {email, password}
+
+POST /auth/refresh → refresh JWT token
+
+Token Structure
+
+Access Token: aktif 60 menit
+
+Refresh Token: aktif 7 hari
+
+Disimpan di Authorization: Bearer <token> header
+
+Library:
+
+github.com/golang-jwt/jwt/v5
+
+Hash password menggunakan bcrypt
+
+6️⃣ Manajemen Ujian (Exam Management)
+
+Guru membuat ujian baru (Exam)
+
+Pilih soal dari Question → tersimpan di ExamQuestion
+
+Saat Publish, backend menyimpan soal ke cache in-memory
+
+Soal disimpan di RAM server sampai H+1 dari waktu mulai ujian
+
+Exam Cache Schema
+type ExamCache struct {
+  ExamID     int64
+  Questions  []ExamQuestion
+  CreatedAt  time.Time
+  ExpireAt   time.Time
+}
+var CachedExams = map[int64]*ExamCache{}
+
+7️⃣ Caching Soal di Memori
+Alur:
+
+Guru publish ujian → backend query semua soal → simpan ke CachedExams
+
+Saat siswa mulai ujian → backend load dari cache, bukan DB
+
+Setelah ujian lewat H+1 → cache otomatis dihapus oleh background job
+
+Admin dapat memantau & menghapus cache manual dari dashboard
+
+Cache Admin Endpoints
+
+GET /admin/cache/stats
+
+DELETE /admin/cache/:exam_id
+
+Sample Response
+{
+  "total_exams_cached": 6,
+  "estimated_memory_mb": 45.2,
+  "caches": [
+    { "exam_id": 101, "expire_at": "2025-10-09T10:00:00Z" }
+  ]
+}
+
+8️⃣ Anti-Cheat System (Auto-Submit)
+Trigger Event
+Event	Deskripsi	Aksi
+fullscreenchange	Keluar dari mode fullscreen	Auto submit
+visibilitychange	Tab browser tidak aktif	Auto submit
+blur	Window kehilangan fokus	Auto submit
+
+
+Frontend Logic (Solid.js)
+const triggerAutoSubmit = async () => {
+  await fetch(`/api/v1/exams/${examId}/auto-submit`, { method: 'POST' });
+};
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) triggerAutoSubmit();
+});
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) triggerAutoSubmit();
+});
+window.addEventListener('blur', triggerAutoSubmit);
+
+Backend Handler (Golang)
+func (h *ExamHandler) AutoSubmit(w http.ResponseWriter, r *http.Request) {
+  // mark attempt as force_submitted
+  // log anti-cheat event in AuditLog
+}
+
+9️⃣ Audit Log
+Table: audit_logs
+| Field           | Type        | Description                             |
+| --------------- | ----------- | --------------------------------------- |
+| id              | BIGSERIAL   | PK                                      |
+| user_id         | BIGINT      | FK ke `users`                           |
+| action          | VARCHAR     | Event (login, submit, anti_cheat_event) |
+| target_resource | VARCHAR     | exam / question / user                  |
+| target_id       | BIGINT      | Resource ID                             |
+| details         | JSONB       | Additional info                         |
+| created_at      | TIMESTAMPTZ | Timestamp                               |
+
+
+🔟 Kinerja & Batasan Sistem
+| Aspek         | Target           | Implementasi                                |
+| ------------- | ---------------- | ------------------------------------------- |
+| Server        | 4 core, 4 GB RAM | Optimasi Go runtime + PG connection pooling |
+| Concurrency   | 5000 siswa aktif | In-memory cache & non-blocking autosave     |
+| DB            | PostgreSQL 14+   | Indexing + sqlc prepared statements         |
+| Autosave      | 60 detik         | Async goroutine batch writer                |
+| Cache RAM     | < 100 MB typical | Struct + GC-safe slice                      |
+| Response time | < 200ms p95      | Cache-first read                            |
+
+
+1️⃣1️⃣ Docker Deployment
+docker-compose.yml
+
+version: "3.9"
+services:
+  api:
+    build:
+      context: ./BE
+      dockerfile: ../Deploy/Dockerfile.api
+    env_file: ./Deploy/.env
+    ports:
+      - "8080:8080"
+    restart: always
+
+  frontend:
+    build:
+      context: ./FE
+      dockerfile: ../Deploy/Dockerfile.fe
+    ports:
+      - "5173:80"
+    restart: always
+
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: cbt
+      POSTGRES_USER: cbt_user
+      POSTGRES_PASSWORD: cbt_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  pgdata:
+
+
+1️⃣2️⃣ Observability & Monitoring
+| Komponen           | Fungsi                                  |
+| ------------------ | --------------------------------------- |
+| Prometheus Metrics | `/metrics` endpoint di backend          |
+| Cache Monitor      | Admin dashboard menunjukkan cache usage |
+| Audit Log Viewer   | UI untuk admin menelusuri aktivitas     |
+| Log                | JSON structured (zap/zerolog)           |
+| Healthcheck        | `/health` endpoint untuk status API     |
+
+
+1️⃣3️⃣ Roadmap Pengembangan
+| Tahap | Modul                     | Estimasi | Output               |
+| ----- | ------------------------- | -------- | -------------------- |
+| 1     | Auth + User + Role        | 1 minggu | JWT Login            |
+| 2     | Question Bank + Exam Mgmt | 2 minggu | CRUD Soal + Publish  |
+| 3     | Exam Execution + Cache    | 3 minggu | Siswa kerjakan ujian |
+| 4     | Anti-Cheat Auto-Submit    | 2 minggu | Proteksi aktif       |
+| 5     | Admin Cache Monitor       | 1 minggu | Dashboard RAM        |
+| 6     | Optimization & Load Test  | 1 minggu | 5000 user stable     |
+
+
+Total Estimasi: ±10 minggu dev aktif (1 BE + 1 FE)
+
+1️⃣4️⃣ Acceptance Criteria
+
+✅ Login JWT berjalan (semua role)
+✅ Guru publish → soal tersimpan di RAM cache
+✅ Siswa load soal langsung dari cache
+✅ Anti-cheat trigger → auto-submit sukses
+✅ Admin melihat & hapus cache manual
+✅ Audit log merekam semua aktivitas utama
+✅ Sistem stabil untuk 5000 peserta aktif
+
+1️⃣5️⃣ License & Ownership
+
+- Source code & PRD dimiliki oleh Bro Cak.
+- Semua aset monorepo ini akan dikelola di GitHub private repository.
+- AI Agent diperbolehkan membaca folder /Docs untuk auto-documentation dan code generation.
+
+End of PRD v1.0
+📁 File path recommendation: /Docs/PRD_CBT_v1.0.md
+🧩 Compatible for AI Agent Codebase Integration
