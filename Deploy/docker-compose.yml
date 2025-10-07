@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  # Service Database PostgreSQL
+  postgres:
+    image: postgres:14-alpine
+    container_name: cbt-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cbtdb}
+      POSTGRES_USER: ${POSTGRES_USER:-cbtuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cbtpwd}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Service Backend Golang
+  api:
+    build:
+      context: ..
+      dockerfile: Deploy/Dockerfile.api
+    container_name: cbt-api
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-cbtuser}:${POSTGRES_PASSWORD:-cbtpwd}@postgres:5432/${POSTGRES_DB:-cbtdb}?sslmode=disable
+    restart: unless-stopped
+
+  # Service Frontend SolidJS
+  frontend:
+    build:
+      context: ..
+      dockerfile: Deploy/Dockerfile.fe
+    container_name: cbt-frontend
+    ports:
+      - "${FE_PORT:-5173}:80"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

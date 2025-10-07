@@ -1,0 +1,25 @@
+# Stage 1: Build aplication
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+
+# Copy only the go.mod file to leverage Docker's layer caching
+COPY BE/go.mod ./
+
+# Download dependencies and create go.sum automatically
+RUN go mod tidy
+
+# Now copy the rest of the source code
+COPY BE/. .
+
+# Build binary file
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /cbt-api ./cmd/api/main.go
+
+# Stage 2: Runtime
+FROM alpine:latest
+
+WORKDIR /app
+COPY --from=builder /cbt-api .
+
+EXPOSE 8080
+CMD ["./cbt-api"]
